@@ -6,7 +6,7 @@ s3 IO tools.
 
 import attr
 import pandas as pd
-from six import string_types, StringIO
+from six import string_types, StringIO, PY3
 
 from ..compat import gzip_compress, gzip_decompress
 
@@ -80,6 +80,7 @@ class S3Dataframe(object):
 
         self.df = pd.read_csv(
             StringIO(body.decode("utf-8")),
+            encoding="utf-8",
             **read_csv_kwargs)
 
         return response
@@ -99,10 +100,9 @@ class S3Dataframe(object):
         if key is None:
             key = self.key
 
-        buffer = StringIO()
-        self.df.to_csv(buffer, index=False, **to_csv_kwargs)
-
-        body = buffer.getvalue().encode("utf-8")
+        body = self.df.to_csv(index=False, encoding="utf-8", **to_csv_kwargs)
+        if PY3:
+            body = body.encode("utf-8")
         if gzip_compressed is True:
             body = gzip_compress(body)
 
