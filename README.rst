@@ -52,7 +52,35 @@
 Welcome to ``s3iotools`` Documentation
 ==============================================================================
 
-Documentation for ``s3iotools``.
+
+Usage
+------------------------------------------------------------------------------
+
+.. code-block:: python
+
+    import boto3
+    import pandas as pd
+    from s3iotools.io.dataframe import S3Dataframe
+
+    session = boto3.Session(profile_name="xxx")
+    s3 = session.resource("s3")
+    bucket_name = "my-bucket"
+    s3df = S3Dataframe(s3_resource=s3, bucket_name=bucket_name)
+    s3df.df = pd.DataFrame(...)
+
+    s3df.to_csv(key="data.csv")
+    s3df.to_csv(key="data.csv.gz", gzip_compressed=True)
+
+    s3df_new = S3Dataframe(s3_resource=s3, bucket_name=bucket_name, key="data.csv")
+    s3df_new.read_csv()
+    s3df_new.df # access data
+
+    s3df_new = S3Dataframe(s3_resource=s3, bucket_name=bucket_name, key="data.csv.gz")
+    s3df_new.read_csv(gzip_compressed=True)
+    s3df_new.df # access data
+
+
+json IO is similar.
 
 
 .. _install:
