@@ -8,6 +8,9 @@ omit =
     s3iotools/docs/*
     s3iotools/tests/*
     s3iotools/handlers/*
+    s3iotools/utils/fingerprint.py
+    s3iotools/utils/pandas_mate.py
+    s3iotools/utils/tester.py
 
 [report]
 # Regexes for lines to exclude from consideration
