@@ -5,6 +5,7 @@ from s3iotools import config
 
 config.bucket_name = "test-bucket"
 
+from s3iotools.tests import moto_compat
 from s3iotools.tests.io_dataframe import df_customers
 from s3iotools.io.dataframe import S3Dataframe
 

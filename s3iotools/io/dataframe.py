@@ -60,7 +60,11 @@ class S3Dataframe(object):
             self._object = self.bucket.Object(self.key)
         return self._object
 
-    def read_csv(self, bucket=None, gzip_compressed=False, **read_csv_kwargs):
+    read_csv_kwargs_default = {
+        "encoding": "utf-8"
+    }
+
+    def read_csv(self, bucket=None, key=None, gzip_compressed=False, **read_csv_kwargs):
         """
         Read dataframe data from a s3 object in csv format.
 
@@ -71,8 +75,12 @@ class S3Dataframe(object):
         """
         if bucket is None:
             bucket = self.bucket
+        if key is None:
+            key = self.key
+        _read_csv_kwargs = self.read_csv_kwargs_default.copy()
+        _read_csv_kwargs.update(read_csv_kwargs)
 
-        obj = bucket.Object(self.key)
+        obj = bucket.Object(key)
         response = obj.get()
         body = response["Body"].read()
         if gzip_compressed:
@@ -80,27 +88,33 @@ class S3Dataframe(object):
 
         self.df = pd.read_csv(
             StringIO(body.decode("utf-8")),
-            encoding="utf-8",
-            **read_csv_kwargs)
+            **_read_csv_kwargs)
 
         return response
+
+    to_csv_kwargs_default = {
+        "encoding": "utf-8",
+        "index": False,
+    }
 
     def to_csv(self, bucket=None, key=None, gzip_compressed=False, **to_csv_kwargs):
         """
         Save a dataframe to a s3 object in csv format.
         It will overwrite existing one.
 
-        :param s3_bucket: :class:`s3.Bucket`
+        :param bucket: :class:`s3.Bucket`, optional if self.bucket_name is defined
+        :param key: str, optional if self.key is defined
         :param gzip_compressed: bool
         :param to_csv_kwargs: key word arguments for :meth:`pandas.DataFrame.to_csv`
-        :return:
         """
         if bucket is None:
             bucket = self.bucket
         if key is None:
             key = self.key
+        _to_csv_kwargs = self.to_csv_kwargs_default.copy()
+        _to_csv_kwargs.update(to_csv_kwargs)
 
-        body = self.df.to_csv(index=False, encoding="utf-8", **to_csv_kwargs)
+        body = self.df.to_csv(**_to_csv_kwargs)
         if PY3:
             body = body.encode("utf-8")
         if gzip_compressed is True:
