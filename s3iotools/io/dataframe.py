@@ -60,37 +60,14 @@ class S3Dataframe(object):
             self._object = self.bucket.Object(self.key)
         return self._object
 
-    read_csv_kwargs_default = {
-        "encoding": "utf-8"
-    }
-
-    def read_csv(self, bucket=None, key=None, gzip_compressed=False, **read_csv_kwargs):
-        """
-        Read dataframe data from a s3 object in csv format.
-
-        :param s3_bucket: :class:`s3.Bucket`
-        :param gzip_compressed: bool
-        :param read_csv_kwargs: key word arguments for :meth:`pandas.read_csv`
-        :return:
-        """
+    def prepare_args(self, bucket, key, kwargs, default_kwargs):
         if bucket is None:
             bucket = self.bucket
         if key is None:
             key = self.key
-        _read_csv_kwargs = self.read_csv_kwargs_default.copy()
-        _read_csv_kwargs.update(read_csv_kwargs)
-
-        obj = bucket.Object(key)
-        response = obj.get()
-        body = response["Body"].read()
-        if gzip_compressed:
-            body = gzip_decompress(body)
-
-        self.df = pd.read_csv(
-            StringIO(body.decode("utf-8")),
-            **_read_csv_kwargs)
-
-        return response
+        extra_kwargs = default_kwargs.copy()
+        extra_kwargs.update(kwargs)
+        return bucket, key, extra_kwargs
 
     to_csv_kwargs_default = {
         "encoding": "utf-8",
@@ -107,18 +84,83 @@ class S3Dataframe(object):
         :param gzip_compressed: bool
         :param to_csv_kwargs: key word arguments for :meth:`pandas.DataFrame.to_csv`
         """
-        if bucket is None:
-            bucket = self.bucket
-        if key is None:
-            key = self.key
-        _to_csv_kwargs = self.to_csv_kwargs_default.copy()
-        _to_csv_kwargs.update(to_csv_kwargs)
+        bucket, key, kwargs = self.prepare_args(
+            bucket, key, to_csv_kwargs, self.to_csv_kwargs_default)
 
-        body = self.df.to_csv(**_to_csv_kwargs)
+        body = self.df.to_csv(**kwargs)
         if PY3:
             body = body.encode("utf-8")
         if gzip_compressed is True:
             body = gzip_compress(body)
 
         response = bucket.put_object(Body=body, Key=key)
+        return response
+
+    read_csv_kwargs_default = {
+        "encoding": "utf-8"
+    }
+
+    def read_csv(self, bucket=None, key=None, gzip_compressed=False, **read_csv_kwargs):
+        """
+        Read dataframe data from a s3 object in csv format.
+
+        :param s3_bucket: :class:`s3.Bucket`
+        :param gzip_compressed: bool
+        :param read_csv_kwargs: key word arguments for :meth:`pandas.read_csv`
+        :return:
+        """
+        bucket, key, kwargs = self.prepare_args(
+            bucket, key, read_csv_kwargs, self.read_csv_kwargs_default)
+
+        obj = bucket.Object(key)
+        response = obj.get()
+        body = response["Body"].read()
+        if gzip_compressed:
+            body = gzip_decompress(body)
+
+        self.df = pd.read_csv(StringIO(body.decode("utf-8")), **kwargs)
+
+        return response
+
+    to_json_kwargs_default = {
+        "force_ascii": False,
+    }
+
+    def to_json(self, bucket=None, key=None, gzip_compressed=False, **to_json_kwargs):
+        bucket, key, kwargs = self.prepare_args(
+            bucket, key, to_json_kwargs, self.to_json_kwargs_default)
+
+        body = self.df.to_json(**kwargs)
+        if PY3:
+            body = body.encode("utf-8")
+        if gzip_compressed is True:
+            body = gzip_compress(body)
+
+        response = bucket.put_object(Body=body, Key=key)
+        return response
+
+    read_json_kwargs_default = {
+        "encoding": "utf-8"
+    }
+
+    def read_json(self, bucket=None, key=None, gzip_compressed=False, **read_json_kwargs):
+        """
+        Read dataframe data from a s3 object in csv format.
+
+        :param s3_bucket: :class:`s3.Bucket`
+        :param gzip_compressed: bool
+        :param read_json_kwargs: key word arguments for :meth:`pandas.read_csv`
+        :return:
+        """
+        bucket, key, kwargs = self.prepare_args(
+            bucket, key, read_json_kwargs, self.read_json_kwargs_default)
+
+        obj = bucket.Object(key)
+        response = obj.get()
+        body = response["Body"].read()
+        if gzip_compressed:
+            body = gzip_decompress(body)
+
+        self.df = pd.read_json(StringIO(body.decode("utf-8")), **kwargs)
+
         return response
