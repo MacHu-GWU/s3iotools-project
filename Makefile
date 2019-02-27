@@ -13,6 +13,10 @@ remove: ## ** Remove Virtual Environment
 	bash ./bin/py/venv-remove.sh
 
 
+activate: ## ** Remove Virtual Environment
+	bash ./bin/py/venv-activate.sh
+
+
 clean: ## Clean temp files
 	bash ./bin/py/clean.sh
 
