@@ -6,15 +6,15 @@ s3 IO tools.
 
 import attr
 import pandas as pd
-from six import string_types, StringIO, BytesIO, PY2, PY3
+from six import string_types, StringIO, BytesIO, PY3
 
 from ..compat import gzip_compress, gzip_decompress
 
 try:
     import pyarrow
     from pyarrow import parquet
-except ImportError:
-    pass
+except ImportError as e:
+    print(e)
 
 
 @attr.s

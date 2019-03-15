@@ -21,6 +21,9 @@ Release and Version History
 
 - support parquet format
 
+**Miscellaneous**
+
+- pyarrow doesn't support PY34
 
 0.0.1 (2019-02-27)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
