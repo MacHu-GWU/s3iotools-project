@@ -6,9 +6,15 @@ s3 IO tools.
 
 import attr
 import pandas as pd
-from six import string_types, StringIO, PY3
+from six import string_types, StringIO, BytesIO, PY2, PY3
 
 from ..compat import gzip_compress, gzip_decompress
+
+try:
+    import pyarrow
+    from pyarrow import parquet
+except ImportError:
+    pass
 
 
 @attr.s
@@ -83,6 +89,7 @@ class S3Dataframe(object):
         :param key: str, optional if self.key is defined
         :param gzip_compressed: bool
         :param to_csv_kwargs: key word arguments for :meth:`pandas.DataFrame.to_csv`
+        :return: s3.Bucket.put_object() response
         """
         bucket, key, kwargs = self.prepare_args(
             bucket, key, to_csv_kwargs, self.to_csv_kwargs_default)
@@ -104,10 +111,11 @@ class S3Dataframe(object):
         """
         Read dataframe data from a s3 object in csv format.
 
-        :param s3_bucket: :class:`s3.Bucket`
+        :param bucket: :class:`s3.Bucket`, optional if self.bucket_name is defined
+        :param key: str, optional if self.key is defined
         :param gzip_compressed: bool
         :param read_csv_kwargs: key word arguments for :meth:`pandas.read_csv`
-        :return:
+        :return: s3.Object.get() response
         """
         bucket, key, kwargs = self.prepare_args(
             bucket, key, read_csv_kwargs, self.read_csv_kwargs_default)
@@ -127,6 +135,16 @@ class S3Dataframe(object):
     }
 
     def to_json(self, bucket=None, key=None, gzip_compressed=False, **to_json_kwargs):
+        """
+        Save a dataframe to a s3 object in csv format.
+        It will overwrite existing one.
+
+        :param bucket: :class:`s3.Bucket`, optional if self.bucket_name is defined
+        :param key: str, optional if self.key is defined
+        :param gzip_compressed: bool
+        :param to_json_kwargs: key word arguments for :meth:`pandas.DataFrame.to_json`
+        :return: s3.Bucket.put_object() response
+        """
         bucket, key, kwargs = self.prepare_args(
             bucket, key, to_json_kwargs, self.to_json_kwargs_default)
 
@@ -145,12 +163,13 @@ class S3Dataframe(object):
 
     def read_json(self, bucket=None, key=None, gzip_compressed=False, **read_json_kwargs):
         """
-        Read dataframe data from a s3 object in csv format.
+        Read dataframe data from a s3 object in json format.
 
-        :param s3_bucket: :class:`s3.Bucket`
+        :param bucket: :class:`s3.Bucket`, optional if self.bucket_name is defined
+        :param key: str, optional if self.key is defined
         :param gzip_compressed: bool
-        :param read_json_kwargs: key word arguments for :meth:`pandas.read_csv`
-        :return:
+        :param read_json_kwargs: key word arguments for :meth:`pandas.read_json`
+        :return: s3.Object.get() response
         """
         bucket, key, kwargs = self.prepare_args(
             bucket, key, read_json_kwargs, self.read_json_kwargs_default)
@@ -163,4 +182,64 @@ class S3Dataframe(object):
 
         self.df = pd.read_json(StringIO(body.decode("utf-8")), **kwargs)
 
+        return response
+
+    write_table_kwargs_default = {
+
+    }
+
+    class ParquestCompression:
+        gzip = "gzip"
+        snappy = "snappy"
+        brotli = "brotli"
+        lz4 = "lz4"
+        zstd = "zstd"
+        none = None
+
+    def to_parquet(self, bucket=None, key=None, compression=None, **write_table_kwargs):
+        """
+        Save a dataframe to a s3 object in parquet format.
+        It will overwrite existing one.
+
+        :param bucket: :class:`s3.Bucket`, optional if self.bucket_name is defined
+        :param key: str, optional if self.key is defined
+        :param gzip_compressed: bool
+        :param to_json_kwargs: key word arguments for :meth:`pyarrow.parquet.write_table_kwargs`
+        :return: s3.Bucket.put_object() response
+        """
+        bucket, key, kwargs = self.prepare_args(
+            bucket, key, write_table_kwargs, self.write_table_kwargs_default)
+
+        buffer = BytesIO()
+        parquet.write_table(
+            pyarrow.Table.from_pandas(self.df),
+            buffer,
+            compression=compression,
+            **write_table_kwargs
+        )
+        body = buffer.getvalue()
+        response = bucket.put_object(Body=body, Key=key)
+        return response
+
+    read_table_kwargs_default = {}
+
+    def read_parquet(self, bucket=None, key=None, **read_table_kwargs):
+        """
+        Read dataframe data from a s3 object in parquet format.
+
+        :param bucket: :class:`s3.Bucket`, optional if self.bucket_name is defined
+        :param key: str, optional if self.key is defined
+        :param read_table_kwargs: key word arguments for :meth:`pyarrow.parquet.read_table`
+        :return: s3.Object.get() response
+        """
+        bucket, key, kwargs = self.prepare_args(
+            bucket, key, read_table_kwargs, self.read_table_kwargs_default)
+
+        obj = bucket.Object(key)
+        response = obj.get()
+
+        # boto3 StreamingBody has not implemented closed attribute
+        buffer = BytesIO()
+        buffer.write(response["Body"].read())
+        self.df = parquet.read_table(buffer, **read_table_kwargs).to_pandas()
         return response

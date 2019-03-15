@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 
+"""
+moto3 requires a ~/.aws/credentials file exists, so we create a fake one dynamically.
+"""
+
 import os
 
 src = os.path.join(os.path.dirname(__file__), "credentials")

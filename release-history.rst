@@ -4,7 +4,7 @@ Release and Version History
 ==============================================================================
 
 
-0.0.2 (TODO)
+0.0.3 (TODO)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 **Features and Improvements**
 
@@ -15,6 +15,13 @@ Release and Version History
 **Miscellaneous**
 
 
+0.0.2 (2019-03-15)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Features and Improvements**
+
+- support parquet format
+
+
 0.0.1 (2019-02-27)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -23,3 +30,4 @@ Release and Version History
 **Features and Improvements**
 
 - implements simple s3 dataframe
+- easy to read / write csv and json
