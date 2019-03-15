@@ -26,6 +26,7 @@ if PY2:
         """
         with gzip.GzipFile(fileobj=StringIO(data)) as f:
             return f.read()
+
 elif PY3:
     gzip_compress = gzip.compress
     gzip_decompress = gzip.decompress

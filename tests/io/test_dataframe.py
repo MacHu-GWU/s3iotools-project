@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import pytest
+import sys
 from s3iotools import config
 
 config.bucket_name = "test-bucket"
@@ -56,17 +57,19 @@ class TestS3Dataframe(object):
 
     @mock_s3
     def test_parquet(self):
-        s3 = boto3.resource("s3", region_name="us-east-1")
-        s3.create_bucket(Bucket=config.bucket_name)
+        if (sys.version_info.major >= 3 and sys.version_info.minor >= 5) \
+            or (sys.version_info.major == 2 and sys.version_info.minor == 7):
+            s3 = boto3.resource("s3", region_name="us-east-1")
+            s3.create_bucket(Bucket=config.bucket_name)
 
-        s3df = S3Dataframe(s3_resource=s3, bucket_name=config.bucket_name)
-        s3df.df = df_customers
-        s3df.to_parquet(key="customers.parquet")
+            s3df = S3Dataframe(s3_resource=s3, bucket_name=config.bucket_name)
+            s3df.df = df_customers
+            s3df.to_parquet(key="customers.parquet")
 
-        s3df = S3Dataframe(s3_resource=s3, bucket_name=config.bucket_name, key="customers.parquet")
-        assert s3df.df is None
-        s3df.read_parquet()
-        assert s3df.df.shape == (91, 7)
+            s3df = S3Dataframe(s3_resource=s3, bucket_name=config.bucket_name, key="customers.parquet")
+            assert s3df.df is None
+            s3df.read_parquet()
+            assert s3df.df.shape == (91, 7)
 
 
 if __name__ == "__main__":

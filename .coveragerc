@@ -11,6 +11,7 @@ omit =
     s3iotools/utils/fingerprint.py
     s3iotools/utils/pandas_mate.py
     s3iotools/utils/tester.py
+    s3iotools/compat.py
 
 [report]
 # Regexes for lines to exclude from consideration
