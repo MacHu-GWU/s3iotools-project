@@ -82,6 +82,30 @@ Usage
 
 json IO is similar.
 
+.. code-block:: python
+
+    s3df = S3Dataframe(s3_resource=s3, bucket_name=bucket_name)
+    s3df.df = pd.DataFrame(...)
+    s3df.to_json(key="data.json.gz", gzip_compressed=True)
+    s3df_new = S3Dataframe(s3_resource=s3, bucket_name=bucket_name, key="data.json.gz")
+    s3df_new.read_json(gzip_compressed=True)
+    s3df_new.df # access data
+
+
+parquet is a columnar storage format, which is very efficient for OLAP query. You can just put data on S3, then use AWS Athena to query parquet files. parquet IO in s3iotools is easy:
+
+.. code-block:: python
+
+    s3df = S3Dataframe(s3_resource=s3, bucket_name=bucket_name)
+    s3df.df = pd.DataFrame(...)
+    s3df.to_parquet(key="data.parquet", compression="gzip")
+    s3df_new = S3Dataframe(s3_resource=s3, bucket_name=bucket_name, key="data.parquet")
+    s3df_new.read_parquet()
+    s3df_new.df # access data
+
+
+s3iotools doesn't automatically install ``pyarrow``, you can install it with ``pip install pyarrow``.
+
 
 .. _install:
 

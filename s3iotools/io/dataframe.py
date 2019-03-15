@@ -10,12 +10,6 @@ from six import string_types, StringIO, BytesIO, PY3
 
 from ..compat import gzip_compress, gzip_decompress
 
-try:
-    import pyarrow
-    from pyarrow import parquet
-except ImportError as e:
-    print(e)
-
 
 @attr.s
 class S3Dataframe(object):
@@ -207,6 +201,9 @@ class S3Dataframe(object):
         :param to_json_kwargs: key word arguments for :meth:`pyarrow.parquet.write_table_kwargs`
         :return: s3.Bucket.put_object() response
         """
+        import pyarrow
+        from pyarrow import parquet
+
         bucket, key, kwargs = self.prepare_args(
             bucket, key, write_table_kwargs, self.write_table_kwargs_default)
 
@@ -232,6 +229,8 @@ class S3Dataframe(object):
         :param read_table_kwargs: key word arguments for :meth:`pyarrow.parquet.read_table`
         :return: s3.Object.get() response
         """
+        from pyarrow import parquet
+
         bucket, key, kwargs = self.prepare_args(
             bucket, key, read_table_kwargs, self.read_table_kwargs_default)
 
