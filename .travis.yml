@@ -12,6 +12,7 @@ install:
   - pip install --editable . # Install it self
   - pip install -r requirements-test.txt # Install test dependencies
   - pip install codecov # Install coveralls
+  - pip install numpy --upgrade
 
 script:
   - pytest tests --cov=s3iotools # Run unittest

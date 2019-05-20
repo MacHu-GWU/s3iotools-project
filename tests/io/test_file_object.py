@@ -8,7 +8,6 @@ from s3iotools.tests import moto_compat # create fake ~/.aws/credential file
 import boto3
 from moto import mock_s3
 
-aws_profile = "default"
 bucket_name = "my_bucket"
 
 
@@ -31,7 +30,6 @@ class TestS3FileObject(object):
         bucket.create()
 
         s3_obj = S3FileObject(
-            aws_profile=aws_profile,
             bucket_name=bucket_name,
             key=Path(__file__).basename,
         )

@@ -39,10 +39,10 @@ class Boto3Backed(AttrsClass):
 
 @attr.s
 class S3FileObject(Boto3Backed):
-    aws_profile = attr.ib()  # type: str
     bucket_name = attr.ib()  # type: str
     key = attr.ib()  # type: str
 
+    aws_profile = attr.ib(default="default")  # type: str
     path = attr.ib(default=None)  # type: str
 
     _bucket = attr.ib(default=None)
