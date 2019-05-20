@@ -1,6 +1,14 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""
+There are two simple rules for s3 object key:
+
+- should not start with slash "/"
+- should not end with slash "/"
+
+sometime we made mistake on this, this helper function ensure that common mistake
+will not happened in building s3 URI.
+"""
 
 class S3UrlBuilder(object):
     """

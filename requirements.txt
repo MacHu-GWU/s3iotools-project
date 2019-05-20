@@ -1,3 +1,4 @@
 attrs
-pandas
+attrs_mate
+pathlib_mate
 boto3

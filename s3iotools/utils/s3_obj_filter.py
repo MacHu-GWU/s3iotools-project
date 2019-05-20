@@ -28,6 +28,15 @@ def get_obj_size(s3_obj):
 class FiltersConstructor(object):
     """
     Construct a ``s3.Object`` filter function.
+
+    Note:
+
+    为什么要有 is_classmethod, is_staticmethod, is_regularmethod 这些参数?
+
+    由于 ``select_from(objects, filters)`` 中的 filters 本质上是一个只接受一个
+    s3 Object 参数的函数. 而这个函数有可能会被用在 classmethod, staticmethod,
+    和普通的类 method 中. 所以如果我们要将这个 filters 函数赋值给一个类的话, 就像我们在
+    :class:`Filters` 中做的一样, 就有用了.
     """
 
     @staticmethod
@@ -195,6 +204,27 @@ Filters = _Filters()
 
 
 def select_from(objects, filters):
+    """
+    Select objects from s3 objects candidate iterable by criterion defined
+    in filters.
+
+    :type objects: list
+    :type filters: func
+
+    :rtype: iterable
+    
+    Usage:
+    
+    .. code-block:: python
+    
+        >>> from s3iotools import select_from, Filters, filter_constructor
+        >>> objects = boto3.resource("s3").Bucket("my-bucket").objects.filter(Prefix="/data")
+        >>> for obj in select_from(objects, Filters.csv): # select .csv file
+        ...     # do someting
+        >>> from datetime import datetime
+        >>> for obj in select_from(objects, filter_constructor.by_last_modified_after(datetime(2019, 1, 1))) # select file created after 2019-01-01
+        ...     # do someting
+    """
     for s3_obj in objects:
         if filters(s3_obj):
             yield s3_obj
