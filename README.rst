@@ -56,11 +56,40 @@ Welcome to ``s3iotools`` Documentation
 Usage
 ------------------------------------------------------------------------------
 
+Copy local file to s3 and download file object from s3 to local is easy:
+
+.. code-block:: python
+
+    from s3iotools import S3FileObject
+
+    s3obj = S3FileObject(bucket="my-bucket", key="hello.txt", path="hello.txt")
+
+    # get started, now we don't have file either on local or on s3
+    if s3obj.path_obj.exists():
+        s3obj.path_obj.remove()
+    assert s3obj.exists_on_local() is False
+    assert s3obj.exists_on_s3() is False
+
+    s3obj.path_obj.write_text("hello world", encoding="utf-8)
+    assert s3obj.exists_on_local() is True
+
+    s3obj.copy_to_s3()
+    assert s3obj.exists_on_s3() is True
+
+    s3obj.path_obj.remove()
+    assert s3obj.exists_on_local() is False
+
+    s3obj.copy_to_local()
+    assert s3obj.exists_on_local() is True
+
+
+You can manipulate s3 backed ``pandas.DataFrame`` easily:
+
 .. code-block:: python
 
     import boto3
     import pandas as pd
-    from s3iotools.io.dataframe import S3Dataframe
+    from s3iotools import S3Dataframe
 
     session = boto3.Session(profile_name="xxx")
     s3 = session.resource("s3")

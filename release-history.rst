@@ -4,7 +4,7 @@ Release and Version History
 ==============================================================================
 
 
-0.0.3 (TODO)
+0.0.4 (TODO)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 **Features and Improvements**
 
@@ -13,6 +13,17 @@ Release and Version History
 **Bugfixes**
 
 **Miscellaneous**
+
+
+0.0.3 (2019-05-20)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Features and Improvements**
+
+- Add ``S3FileObject`` class, allow easily read / write, upload / download file from local to s3.
+
+**Minor Improvements**
+
+- More documents
 
 
 0.0.2 (2019-03-15)
